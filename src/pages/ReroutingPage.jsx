@@ -126,7 +126,7 @@ export default function ReroutingPage() {
                   <motion.div
                     key={msme.id}
                     className={`alert-card ${msme.riskLevel}`}
-                    style={{ cursor: 'pointer', padding: '16px' }}
+                    style={{ cursor: 'pointer', flexShrink: 0 }}
                     onClick={() => handleSelectMSME(msme)}
                     whileHover={{ scale: 1.01 }}
                     initial={{ opacity: 0, y: 10 }}
