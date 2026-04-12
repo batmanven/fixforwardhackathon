@@ -63,5 +63,4 @@ MERP is a proactive, data-driven intelligence layer designed to predict energy s
 - **57%** average reduction in fuel cost for emergency allocation.
 
 ---
-**Built with care for the FixForward Hackathon 2026.**
-*Turning a reactive government into a predictive one.*
+**Built for the FixForward Hackathon 2026.**
