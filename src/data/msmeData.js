@@ -143,17 +143,32 @@ function generateMSME(id, clusterKey, industryKey) {
 // Generate static list as fallback
 export const msmeList = Array.from({ length: 50 }, (_, i) => generateMSME(i + 1, 'morbi', 'ceramics'));
 
-export const calculateStats = (list) => ({
-  totalMSMEs: list.length,
-  redUnits: list.filter(m => m.riskLevel === 'red').length,
-  yellowUnits: list.filter(m => m.riskLevel === 'yellow').length,
-  greenUnits: list.filter(m => m.riskLevel === 'green').length,
-  totalEmployees: list.reduce((s, m) => s + m.employees, 0),
-  avgCapacity: parseFloat((list.reduce((s, m) => s + m.capacityUtilization, 0) / list.length).toFixed(1)),
-  exportAtRisk: list.filter(m => m.hasExportOrders && m.riskLevel === 'red').reduce((s, m) => s + m.exportValueLakhs, 0),
-  avgFuelDays: parseFloat((list.reduce((s, m) => s + m.daysOfFuel, 0) / list.length).toFixed(1)),
-  criticalUnits: list.filter(m => m.daysOfFuel <= 2).length,
-});
+export const calculateStats = (list) => {
+  if (!list || list.length === 0) {
+    return {
+      totalMSMEs: 0,
+      redUnits: 0,
+      yellowUnits: 0,
+      greenUnits: 0,
+      totalEmployees: 0,
+      avgCapacity: 0,
+      exportAtRisk: 0,
+      avgFuelDays: 0,
+      criticalUnits: 0,
+    };
+  }
+  return {
+    totalMSMEs: list.length,
+    redUnits: list.filter(m => m.riskLevel === 'red').length,
+    yellowUnits: list.filter(m => m.riskLevel === 'yellow').length,
+    greenUnits: list.filter(m => m.riskLevel === 'green').length,
+    totalEmployees: list.reduce((s, m) => s + m.employees, 0),
+    avgCapacity: parseFloat((list.reduce((s, m) => s + m.capacityUtilization, 0) / list.length).toFixed(1)),
+    exportAtRisk: list.filter(m => m.hasExportOrders && m.riskLevel === 'red').reduce((s, m) => s + m.exportValueLakhs, 0),
+    avgFuelDays: parseFloat((list.reduce((s, m) => s + m.daysOfFuel, 0) / list.length).toFixed(1)),
+    criticalUnits: list.filter(m => m.daysOfFuel <= 2).length,
+  };
+};
 
 export const stats = calculateStats(msmeList);
 
@@ -168,7 +183,7 @@ export async function getLiveMSMEs() {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    if (!data || data.length === 0) return msmeList;
+    if (!data || data.length === 0) return [];
 
     // Map DB fields to app fields
     return data.map(m => ({
@@ -189,8 +204,8 @@ export async function getLiveMSMEs() {
       exportValueLakhs: m.export_value_lakhs || 0,
     }));
   } catch (err) {
-    console.error('Supabase fetch failed, using fallback metrics:', err);
-    return msmeList;
+    console.error('Supabase fetch failed, returning empty state:', err);
+    return [];
   }
 }
 

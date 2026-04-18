@@ -43,16 +43,30 @@ export const dealerList = [
   ...Array.from({ length: 10 }, (_, i) => generateDealer(i + 13, 19.2813, 73.0482, 'Bhiwandi', 'Maharashtra', '421')),
 ];
 
-export const calculateDealerStats = (list) => ({
-  total: list.length,
-  empty: list.filter(d => d.status === 'empty').length,
-  critical: list.filter(d => d.status === 'critical').length,
-  low: list.filter(d => d.status === 'low').length,
-  available: list.filter(d => d.status === 'available').length,
-  avgWaitDays: parseFloat((list.reduce((s, d) => s + d.waitingDays, 0) / list.length).toFixed(1)),
-  avgStockPct: parseFloat((list.reduce((s, d) => s + d.stockPct, 0) / list.length).toFixed(1)),
-  acceptingVouchers: list.filter(d => d.acceptsVoucher).length,
-});
+export const calculateDealerStats = (list) => {
+  if (!list || list.length === 0) {
+    return {
+      total: 0,
+      empty: 0,
+      critical: 0,
+      low: 0,
+      available: 0,
+      avgWaitDays: 0,
+      avgStockPct: 0,
+      acceptingVouchers: 0,
+    };
+  }
+  return {
+    total: list.length,
+    empty: list.filter(d => d.status === 'empty').length,
+    critical: list.filter(d => d.status === 'critical').length,
+    low: list.filter(d => d.status === 'low').length,
+    available: list.filter(d => d.status === 'available').length,
+    avgWaitDays: parseFloat((list.reduce((s, d) => s + d.waitingDays, 0) / list.length).toFixed(1)),
+    avgStockPct: parseFloat((list.reduce((s, d) => s + d.stockPct, 0) / list.length).toFixed(1)),
+    acceptingVouchers: list.filter(d => d.acceptsVoucher).length,
+  };
+};
 
 export const dealerStats = calculateDealerStats(dealerList);
 
@@ -66,7 +80,7 @@ export async function getLiveDealers() {
       .select('*');
 
     if (error) throw error;
-    if (!data || data.length === 0) return dealerList;
+    if (!data || data.length === 0) return [];
 
     return data.map(d => ({
       ...d,
@@ -76,8 +90,8 @@ export async function getLiveDealers() {
       waitingDays: d.status === 'empty' ? 15 : 2,
     }));
   } catch (err) {
-    console.error('Supabase fetch failed for dealers:', err);
-    return dealerList;
+    console.error('Supabase fetch failed for dealers, returning empty state:', err);
+    return [];
   }
 }
 
