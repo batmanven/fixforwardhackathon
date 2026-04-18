@@ -181,7 +181,7 @@ export default function ReroutingPage() {
                           color: msme.riskLevel === 'red' ? 'var(--risk-red)' : 'var(--risk-yellow)',
                           fontFamily: 'var(--font-heading)',
                         }}>
-                          {msme.daysOfFuel}d
+                          {Number(msme.daysOfFuel).toFixed(1)}d
                         </div>
                         <div style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>fuel left</div>
                       </div>
@@ -209,7 +209,7 @@ export default function ReroutingPage() {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '28px', fontWeight: 900, color: 'var(--risk-red)', fontFamily: 'var(--font-heading)' }}>
-                  {selectedMSME.daysOfFuel}d
+                  {Number(selectedMSME.daysOfFuel).toFixed(1)}d
                 </div>
                 <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>fuel remaining</div>
               </div>

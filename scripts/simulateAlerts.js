@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { createClient } from '@supabase/supabase-js';
 import { sendSMS } from '../api/twilioService.js';
 import dotenv from 'dotenv';
@@ -25,7 +26,7 @@ async function runCrisisEngine() {
       // Simulation: Daily depletion (random 10-25% of stock consumed)
       const depletion = unit.daily_usage * (0.5 + Math.random());
       const newStock = Math.max(0, unit.current_stock - depletion);
-      const daysLeft = newStock / unit.daily_usage;
+      const daysLeft = parseFloat((newStock / unit.daily_usage).toFixed(1));
       
       // Calculate new risk
       let fuelScore = daysLeft <= 1 ? 95 : daysLeft <= 3 ? 80 : daysLeft <= 7 ? 50 : 20;

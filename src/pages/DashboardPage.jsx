@@ -177,7 +177,7 @@ export default function DashboardPage() {
                       <div style={{ fontWeight: 600 }}>{alert.industryIcon} {alert.unitName}</div>
                       <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{alert.clusterName} • {alert.employees} jobs</div>
                     </div>
-                    <span className="risk-badge red">{alert.daysOfFuel}d left</span>
+                    <span className="risk-badge red">{Number(alert.daysOfFuel).toFixed(1)}d left</span>
                   </div>
                 </div>
               ))}

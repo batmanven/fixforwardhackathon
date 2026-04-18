@@ -1,11 +1,12 @@
+/* eslint-disable no-undef */
 import twilio from 'twilio';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const accountSid = (typeof import.meta !== 'undefined' && import.meta.env?.TWILIO_ACCOUNT_SID) || import.meta.env.TWILIO_ACCOUNT_SID;
-const authToken = (typeof import.meta !== 'undefined' && import.meta.env?.TWILIO_AUTH_TOKEN) || import.meta.env.TWILIO_AUTH_TOKEN;
-const fromNumber = (typeof import.meta !== 'undefined' && import.meta.env?.TWILIO_PHONE_NUMBER) || import.meta.env.TWILIO_PHONE_NUMBER;
+const accountSid = (typeof import.meta !== 'undefined' && import.meta.env?.TWILIO_ACCOUNT_SID) || process.env.TWILIO_ACCOUNT_SID;
+const authToken = (typeof import.meta !== 'undefined' && import.meta.env?.TWILIO_AUTH_TOKEN) || process.env.TWILIO_AUTH_TOKEN;
+const fromNumber = (typeof import.meta !== 'undefined' && import.meta.env?.TWILIO_PHONE_NUMBER) || process.env.TWILIO_PHONE_NUMBER;
 
 const client = (accountSid && authToken) ? twilio(accountSid, authToken) : null;
 

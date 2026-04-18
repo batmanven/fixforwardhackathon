@@ -1,9 +1,10 @@
+/* eslint-disable no-undef */
 import { createClient } from '@supabase/supabase-js';
 import { sendSMS } from './twilioService.js';
 
 const supabase = createClient(
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) || import.meta.env.SUPABASE_URL || '',
-  (typeof import.meta !== 'undefined' && import.meta.env?.SUPABASE_SERVICE_ROLE_KEY) || import.meta.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) || process.env.VITE_SUPABASE_URL || '',
+  (typeof import.meta !== 'undefined' && import.meta.env?.SUPABASE_SERVICE_ROLE_KEY) || process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 );
 
 export default async (req, res) => {
@@ -25,7 +26,7 @@ export default async (req, res) => {
     const registration = {
       owner_name: structuredData.ownerName || 'MSME Owner',
       unit_name: structuredData.unitName || `${structuredData.industry} Unit`,
-      phone_number: call?.customer?.number || structuredData.phone || '',
+      phone: call?.customer?.number || structuredData.phone || '',
       industry: structuredData.industry || 'General',
       daily_usage: parseFloat(structuredData.dailyUsage) || 0,
       current_stock: parseFloat(structuredData.currentStock) || 0,
@@ -57,9 +58,9 @@ export default async (req, res) => {
     }
 
     // REAL TIME PEAK: Send SMS via Twilio
-    if (registration.phone_number) {
+    if (registration.phone) {
       const smsBody = `[MERP] Hello ${registration.owner_name}, your unit "${registration.unit_name}" is successfully registered. Risk Level: ${registration.risk_level.toUpperCase()}. We are monitoring fuel routes for you.`;
-      await sendSMS(registration.phone_number, smsBody);
+      await sendSMS(registration.phone, smsBody);
     }
 
     return res.status(200).json({ status: 'success', data });

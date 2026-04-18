@@ -50,6 +50,7 @@ export default function RegisterPage() {
     publicKey: import.meta.env.VITE_VAPI_PUBLIC_KEY || '',
     assistantId: import.meta.env.VITE_VAPI_ASSISTANT_ID || ''
   });
+  // eslint-disable-next-line no-unused-vars
   const [showVapiConfig, setShowVapiConfig] = useState(false);
   const [vapiTranscript, setVapiTranscript] = useState([]);
   const vapiRef = useRef(null);
@@ -168,7 +169,7 @@ export default function RegisterPage() {
           <button className={`btn ${useVapi ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setUseVapi(!useVapi)}>
             <Cpu size={16} /> {useVapi ? 'VAPI AI ACTIVE' : 'ENABLE VAPI'}
           </button>
-          <button className="btn btn-ghost" onClick={() => setShowVapiConfig(!showVapiConfig)}><Settings size={18} /></button>
+       
         </div>
       </div>
 
