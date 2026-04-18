@@ -1,7 +1,5 @@
 import { supabase } from '../utils/supabaseClient';
 
-// Realistic MSME data based on the crisis situation
-// 250+ units across Morbi (ceramics), Bhiwandi (textiles), Ludhiana (auto parts), Restaurants
 
 export const industries = {
   ceramics: { name: 'Ceramics', fuelType: 'LPG', avgDailyUsage: 45, icon: '🏭' },
