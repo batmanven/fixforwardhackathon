@@ -3,9 +3,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const accountSid = import.meta.env.TWILIO_ACCOUNT_SID;
-const authToken = import.meta.env.TWILIO_AUTH_TOKEN;
-const fromNumber = import.meta.env.TWILIO_PHONE_NUMBER;
+const accountSid = (typeof import.meta !== 'undefined' && import.meta.env?.TWILIO_ACCOUNT_SID) || import.meta.env.TWILIO_ACCOUNT_SID;
+const authToken = (typeof import.meta !== 'undefined' && import.meta.env?.TWILIO_AUTH_TOKEN) || import.meta.env.TWILIO_AUTH_TOKEN;
+const fromNumber = (typeof import.meta !== 'undefined' && import.meta.env?.TWILIO_PHONE_NUMBER) || import.meta.env.TWILIO_PHONE_NUMBER;
 
 const client = (accountSid && authToken) ? twilio(accountSid, authToken) : null;
 

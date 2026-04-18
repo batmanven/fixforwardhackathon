@@ -16,18 +16,19 @@ function haversineDistance(lat1, lng1, lat2, lng2) {
   return parseFloat((R * c).toFixed(1));
 }
 
-// Find dealers within radius that have stock
-export function findNearbyDealers(msmeLat, msmeLng, radiusKm = 50, fuelType = 'LPG') {
-  return dealerList
+// Find dealers within radius that have stock from a dynamic list
+export function findNearbyDealers(msmeLat, msmeLng, radiusKm = 50, fuelType = 'LPG', customDealerList = []) {
+  const sourceList = customDealerList.length > 0 ? customDealerList : dealerList;
+  
+  return sourceList
     .map(dealer => ({
       ...dealer,
       distance: haversineDistance(msmeLat, msmeLng, dealer.lat, dealer.lng),
     }))
     .filter(d => d.distance <= radiusKm)
     .filter(d => {
-      if (fuelType === 'LPG') return d.lpgCylinders > 0;
-      if (fuelType === 'Natural Gas') return d.naturalGasUnits > 0;
-      return d.stockPct > 0;
+      if (fuelType === 'Natural Gas') return (d.naturalGasUnits > 0 || d.stockPct > 0);
+      return d.stockPct > 10; // Simple stock check
     })
     .sort((a, b) => {
       if (a.status === 'available' && b.status !== 'available') return -1;

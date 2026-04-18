@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import { sendSMS } from './twilioService.js';
 
 const supabase = createClient(
-  import.meta.env.SUPABASE_URL || '',
-  import.meta.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) || import.meta.env.SUPABASE_URL || '',
+  (typeof import.meta !== 'undefined' && import.meta.env?.SUPABASE_SERVICE_ROLE_KEY) || import.meta.env.SUPABASE_SERVICE_ROLE_KEY || ''
 );
 
 export default async (req, res) => {

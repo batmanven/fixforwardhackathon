@@ -1,23 +1,43 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
-import { MapPin, Fuel, Clock, CheckCircle, ArrowRight, Search } from 'lucide-react';
-import { msmeList } from '../data/msmeData';
+import { MapPin, Fuel, Clock, CheckCircle, ArrowRight, Search, Zap } from 'lucide-react';
+import { getLiveMSMEs } from '../data/msmeData';
+import { getLiveDealers } from '../data/dealerData';
 import { findNearbyDealers, generateVoucher } from '../utils/dealerMatcher';
 
 export default function ReroutingPage() {
+  const [msmeList, setMsmeList] = useState([]);
+  const [dealerList, setDealerList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedMSME, setSelectedMSME] = useState(null);
   const [nearbyDealers, setNearbyDealers] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [selectedDealer, setSelectedDealer] = useState(null);
   const [voucher, setVoucher] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [step, setStep] = useState(1); // 1: select MSME, 2: select dealer, 3: voucher
+  const [step, setStep] = useState(1); 
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      const [msmes, dealers] = await Promise.all([
+        getLiveMSMEs(),
+        getLiveDealers()
+      ]);
+      setMsmeList(msmes);
+      setDealerList(dealers);
+      setLoading(false);
+    };
+    loadData();
+  }, []);
 
   const criticalMSMEs = useMemo(() =>
     msmeList
       .filter(m => m.riskLevel === 'red' || m.daysOfFuel <= 5)
       .sort((a, b) => a.daysOfFuel - b.daysOfFuel),
-    []
+    [msmeList]
   );
 
   const filteredMSMEs = useMemo(() => {
@@ -25,14 +45,14 @@ export default function ReroutingPage() {
     return criticalMSMEs.filter(m =>
       m.unitName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.ownerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.clusterName.toLowerCase().includes(searchQuery.toLowerCase())
+      (m.id && m.id.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (m.clusterName && m.clusterName.toLowerCase().includes(searchQuery.toLowerCase()))
     ).slice(0, 20);
   }, [searchQuery, criticalMSMEs]);
 
-  function handleSelectMSME(msme) {
+  async function handleSelectMSME(msme) {
     setSelectedMSME(msme);
-    const dealers = findNearbyDealers(msme.lat, msme.lng, 50, msme.fuelType);
+    const dealers = findNearbyDealers(msme.lat, msme.lng, 50, msme.fuelType || 'LPG', dealerList);
     setNearbyDealers(dealers);
     setSelectedDealer(null);
     setVoucher(null);
@@ -41,9 +61,21 @@ export default function ReroutingPage() {
 
   function handleSelectDealer(dealer) {
     setSelectedDealer(dealer);
-    const v = generateVoucher(selectedMSME, dealer);
-    setVoucher(v);
-    setStep(3);
+    generateVoucher(selectedMSME, dealer).then(v => {
+      setVoucher(v);
+      setStep(3);
+    });
+  }
+
+  if (loading) {
+    return (
+      <div className="page-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '80vh' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div className="pulse-dot" style={{ margin: '0 auto 16px' }} />
+          <p style={{ color: 'var(--text-secondary)' }}>Identifying Critical Units...</p>
+        </div>
+      </div>
+    );
   }
 
   function handleReset() {

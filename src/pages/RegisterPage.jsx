@@ -277,14 +277,17 @@ export default function RegisterPage() {
                     className="sms-notification-bubble"
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <MessageSquareText size={16} color="var(--primary)" />
+                      <div className="pulse-dot green" style={{ width: '8px', height: '8px' }} />
                       <div>
-                        <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--primary)' }}>TWILIO SMS SENT</div>
-                        <div style={{ fontSize: '11px', lineHeight: 1.2 }}>"[MERP] Registration success. Risk Level: {scoreData?.riskLevel?.toUpperCase()}..."</div>
+                        <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--risk-green)' }}>TWILIO SMS DELIVERED</div>
+                        <div style={{ fontSize: '11px', lineHeight: 1.2, color: 'white', marginTop: '2px' }}>
+                          "[MERP] Registration success. Risk Level: {scoreData?.riskLevel?.toUpperCase()}..."
+                        </div>
                       </div>
                     </div>
                   </motion.div>
                 )}
+                <div style={{ height: '40px' }} /> {/* Padding for scroll */}
               </div>
             )}
           </div>

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { Bell, Filter, Send, AlertTriangle } from 'lucide-react';
 import { alerts } from '../data/alertData';
