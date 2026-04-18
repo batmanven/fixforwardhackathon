@@ -1,17 +1,35 @@
-import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { districtReports, generateMorningReport } from '../data/alertData';
+import { Loader2 } from 'lucide-react';
+import { generateDistrictReports, generateMorningReport } from '../data/alertData';
+import { getLiveMSMEs } from '../data/msmeData';
 import { formatNumber } from '../utils/formatters';
+import { useEffect, useMemo, useState } from 'react';
 
 export default function DistrictPage() {
   const [selectedDistrict, setSelectedDistrict] = useState(null);
-  const morningReports = useMemo(() =>
-    districtReports.map(r => ({
+  const [liveMSMEs, setLiveMSMEs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchLive() {
+      try {
+        const data = await getLiveMSMEs();
+        setLiveMSMEs(data);
+      } catch (err) {
+        console.error('Failed to fetch live district data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchLive();
+  }, []);
+
+  const morningReports = useMemo(() => {
+    const reports = generateDistrictReports(liveMSMEs);
+    return reports.map(r => ({
       ...r,
       report: generateMorningReport(r),
-    })),
-    []
-  );
+    }));
+  }, [liveMSMEs]);
 
   const selected = selectedDistrict
     ? morningReports.find(r => r.cluster === selectedDistrict)
@@ -35,78 +53,85 @@ export default function DistrictPage() {
               </span>
             </div>
             <div className="glass-card-body" style={{ padding: 0 }}>
-              <table className="district-table">
-                <thead>
-                  <tr>
-                    <th>Cluster</th>
-                    <th>State</th>
-                    <th>Risk Breakdown</th>
-                    <th>Workers</th>
-                    <th>Avg Capacity</th>
-                    <th>Export Risk</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {morningReports.map((r, i) => (
-                    <motion.tr
-                      key={r.cluster}
-                      onClick={() => setSelectedDistrict(r.cluster)}
-                      style={{
-                        cursor: 'pointer',
-                        background: selectedDistrict === r.cluster ? 'var(--surface)' : undefined,
-                      }}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: i * 0.05 }}
-                    >
-                      <td>
-                        <div style={{ fontWeight: 600 }}>📍 {r.cluster}</div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
-                          {r.total} units
-                        </div>
-                      </td>
-                      <td style={{ color: 'var(--text-secondary)' }}>{r.state}</td>
-                      <td>
-                        <div className="risk-dots">
-                          <div className="risk-dot red">{r.red}</div>
-                          <div className="risk-dot yellow">{r.yellow}</div>
-                          <div className="risk-dot green">{r.green}</div>
-                        </div>
-                      </td>
-                      <td style={{ fontWeight: 600 }}>
-                        {formatNumber(r.totalEmployees)}
-                      </td>
-                      <td>
-                        <div className="capacity-bar">
-                          <div className="capacity-bar-track">
-                            <div
-                              className="capacity-bar-fill"
-                              style={{
-                                width: `${r.avgCapacity}%`,
-                                background: r.avgCapacity < 35 ? 'var(--risk-red)' : r.avgCapacity < 50 ? 'var(--risk-yellow)' : 'var(--risk-green)',
-                              }}
-                            />
+              {loading ? (
+                <div style={{ padding: '60px', textAlign: 'center' }}>
+                  <Loader2 className="animate-spin" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
+                  <p style={{ color: 'var(--text-secondary)' }}>Aggregating District Data...</p>
+                </div>
+              ) : (
+                <table className="district-table">
+                  <thead>
+                    <tr>
+                      <th>Cluster</th>
+                      <th>State</th>
+                      <th>Risk Breakdown</th>
+                      <th>Workers</th>
+                      <th>Avg Capacity</th>
+                      <th>Export Risk</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {morningReports.map((r, i) => (
+                      <motion.tr
+                        key={r.cluster}
+                        onClick={() => setSelectedDistrict(r.cluster)}
+                        style={{
+                          cursor: 'pointer',
+                          background: selectedDistrict === r.cluster ? 'var(--surface)' : undefined,
+                        }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: i * 0.05 }}
+                      >
+                        <td>
+                          <div style={{ fontWeight: 600 }}>📍 {r.cluster}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
+                            {r.total} units
                           </div>
-                          <span className="capacity-bar-label" style={{
-                            color: r.avgCapacity < 35 ? 'var(--risk-red)' : r.avgCapacity < 50 ? 'var(--risk-yellow)' : 'var(--risk-green)',
-                          }}>
-                            {r.avgCapacity}%
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        {r.exportAtRisk > 0 ? (
-                          <span style={{ color: 'var(--risk-red)', fontWeight: 600 }}>
-                            ₹{formatNumber(r.exportAtRisk)}L
-                          </span>
-                        ) : (
-                          <span style={{ color: 'var(--text-tertiary)' }}>—</span>
-                        )}
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
+                        </td>
+                        <td style={{ color: 'var(--text-secondary)' }}>{r.state}</td>
+                        <td>
+                          <div className="risk-dots">
+                            <div className="risk-dot red">{r.red}</div>
+                            <div className="risk-dot yellow">{r.yellow}</div>
+                            <div className="risk-dot green">{r.green}</div>
+                          </div>
+                        </td>
+                        <td style={{ fontWeight: 600 }}>
+                          {formatNumber(r.totalEmployees)}
+                        </td>
+                        <td>
+                          <div className="capacity-bar">
+                            <div className="capacity-bar-track">
+                              <div
+                                className="capacity-bar-fill"
+                                style={{
+                                  width: `${r.avgCapacity}%`,
+                                  background: r.avgCapacity < 35 ? 'var(--risk-red)' : r.avgCapacity < 50 ? 'var(--risk-yellow)' : 'var(--risk-green)',
+                                }}
+                              />
+                            </div>
+                            <span className="capacity-bar-label" style={{
+                              color: r.avgCapacity < 35 ? 'var(--risk-red)' : r.avgCapacity < 50 ? 'var(--risk-yellow)' : 'var(--risk-green)',
+                            }}>
+                              {r.avgCapacity}%
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          {r.exportAtRisk > 0 ? (
+                            <span style={{ color: 'var(--risk-red)', fontWeight: 600 }}>
+                              ₹{formatNumber(r.exportAtRisk)}L
+                            </span>
+                          ) : (
+                            <span style={{ color: 'var(--text-tertiary)' }}>—</span>
+                          )}
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
 

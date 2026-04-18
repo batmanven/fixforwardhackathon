@@ -1,18 +1,38 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
-import { Bell, Filter, Send, AlertTriangle } from 'lucide-react';
-import { alerts } from '../data/alertData';
+import { Bell, Filter, Send, AlertTriangle, Loader2 } from 'lucide-react';
+import { generateAlerts } from '../data/alertData';
+import { getLiveMSMEs } from '../data/msmeData';
 
 export default function AlertsPage() {
   const [filter, setFilter] = useState('all');
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [showSMS, setShowSMS] = useState(false);
 
+  const [liveMSMEs, setLiveMSMEs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchLive() {
+      try {
+        const data = await getLiveMSMEs();
+        setLiveMSMEs(data);
+      } catch (err) {
+        console.error('Failed to fetch live alerts:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchLive();
+  }, []);
+
+  const alerts = useMemo(() => generateAlerts(liveMSMEs), [liveMSMEs]);
+
   const filteredAlerts = useMemo(() => {
     if (filter === 'all') return alerts;
     return alerts.filter(a => a.alertType === filter);
-  }, [filter]);
+  }, [filter, alerts]);
 
   const alertCounts = {
     CRITICAL: alerts.filter(a => a.alertType === 'CRITICAL').length,
@@ -56,7 +76,18 @@ export default function AlertsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: showSMS ? '1fr 400px' : '1fr', gap: '24px' }}>
         {/* Alert List */}
         <div>
-          {filteredAlerts.map((alert, i) => (
+          {loading ? (
+            <div className="glass-card" style={{ padding: '60px', textAlign: 'center' }}>
+              <Loader2 className="animate-spin" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
+              <p style={{ color: 'var(--text-secondary)' }}>Syncing with Predictive Engine...</p>
+            </div>
+          ) : filteredAlerts.length === 0 ? (
+            <div className="glass-card" style={{ padding: '60px', textAlign: 'center' }}>
+              <div style={{ fontSize: '40px', marginBottom: '16px' }}>🛡️</div>
+              <h3>All Systems Stable</h3>
+              <p style={{ color: 'var(--text-secondary)' }}>No units are currently below the critical fuel threshold.</p>
+            </div>
+          ) : filteredAlerts.map((alert, i) => (
             <motion.div
               key={alert.id}
               className={`alert-card ${alert.riskLevel}`}

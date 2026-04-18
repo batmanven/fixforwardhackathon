@@ -2,10 +2,10 @@
 import { msmeList } from './msmeData';
 
 // Generate alerts for units with <= 5 days of fuel
-export function generateAlerts() {
+export function generateAlerts(inputList = msmeList) {
   const now = new Date('2026-03-11T20:00:00');
 
-  return msmeList
+  return inputList
     .filter(m => m.daysOfFuel <= 5)
     .map((msme, index) => ({
       id: `ALT-${String(index + 1).padStart(5, '0')}`,
@@ -55,10 +55,10 @@ function generateSMSTextHindi(msme) {
 }
 
 // Generate district-level morning reports
-export function generateDistrictReports() {
+export function generateDistrictReports(inputList = msmeList) {
   const clusterGroups = {};
 
-  msmeList.forEach(msme => {
+  inputList.forEach(msme => {
     if (!clusterGroups[msme.clusterName]) {
       clusterGroups[msme.clusterName] = {
         cluster: msme.clusterName,
