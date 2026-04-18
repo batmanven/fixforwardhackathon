@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.103.3",
     "@vapi-ai/web": "^2.5.2",
+    "dotenv": "^16.6.1",
     "framer-motion": "^12.38.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.8.0",
@@ -20,7 +22,8 @@
     "react-is": "^19.2.5",
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.14.0",
-    "recharts": "^3.8.1"
+    "recharts": "^3.8.1",
+    "twilio": "^5.13.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

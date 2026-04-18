@@ -1,5 +1,4 @@
-// Dealer matching algorithm — finds nearest dealers with available stock
-
+import { supabase } from './supabaseClient';
 import { dealerList } from '../data/dealerData';
 
 // Haversine distance calculation in km
@@ -31,20 +30,19 @@ export function findNearbyDealers(msmeLat, msmeLng, radiusKm = 50, fuelType = 'L
       return d.stockPct > 0;
     })
     .sort((a, b) => {
-      // Sort by availability first, then distance
       if (a.status === 'available' && b.status !== 'available') return -1;
       if (b.status === 'available' && a.status !== 'available') return 1;
       return a.distance - b.distance;
     });
 }
 
-// Generate a unique emergency voucher
-export function generateVoucher(msme, dealer) {
+// Generate and persist a unique emergency voucher
+export async function generateVoucher(msme, dealer) {
   const voucherId = `V-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-  const now = new Date('2026-03-11T20:00:00');
+  const now = new Date();
   const expiry = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
-  return {
+  const voucher = {
     voucherId,
     msmeId: msme.id,
     msmeName: msme.unitName,
@@ -52,18 +50,29 @@ export function generateVoucher(msme, dealer) {
     dealerId: dealer.id,
     dealerName: dealer.name,
     dealerCompany: dealer.company,
-    fuelType: msme.fuelType,
-    quantity: msme.fuelType === 'LPG' ? `${Math.min(5, dealer.lpgCylinders)} cylinders` : `${Math.min(100, dealer.naturalGasUnits)} units`,
+    fuelType: msme.fuelType || 'LPG',
+    quantity: msme.fuelType === 'Natural Gas' ? '50 units' : '5 cylinders',
     issuedAt: now.toISOString(),
     expiresAt: expiry.toISOString(),
     status: 'GENERATED',
     distance: dealer.distance,
-    qrData: JSON.stringify({
-      v: voucherId,
-      m: msme.id,
-      d: dealer.id,
-      f: msme.fuelType,
-      exp: expiry.toISOString(),
-    }),
+    qrData: JSON.stringify({ v: voucherId, m: msme.id, d: dealer.id, exp: expiry.toISOString() }),
   };
+
+  // Try to save to Supabase if configured
+  try {
+    const { error } = await supabase
+      .from('fuel_vouchers')
+      .insert([{
+        msme_id: msme.id.includes('-') ? msme.id : null, // UUID check
+        dealer_id: dealer.id.includes('-') ? dealer.id : null,
+        voucher_code: voucherId,
+        amount_kg: 50,
+      }]);
+    if (error) console.warn('Supabase voucher save error (using local only):', error.message);
+  } catch (e) {
+    console.warn('Voucher persistence failed:', e);
+  }
+
+  return voucher;
 }

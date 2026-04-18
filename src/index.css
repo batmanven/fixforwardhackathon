@@ -2075,3 +2075,248 @@ h1, h2, h3, h4, h5, h6 {
 .leaflet-control-attribution a {
   color: var(--text-secondary) !important;
 }
+
+/* ===== PEAK IVR PHONE STYLES ===== */
+.ivr-phone {
+  background: #111827;
+  border-radius: 48px;
+  border: 8px solid #374151;
+  padding: 12px;
+  box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 10;
+}
+
+.ivr-phone-screen {
+  background: #000;
+  border-radius: 36px;
+  height: 520px;
+  overflow-y: auto;
+  padding-bottom: 20px;
+  scrollbar-width: none;
+}
+
+.ivr-phone-screen::-webkit-scrollbar {
+  display: none;
+}
+
+.chat-bubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.chat-bubble.ai {
+  align-self: flex-start;
+  background: #2563EB;
+  color: white;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-bubble.user {
+  align-self: flex-end;
+  background: #1F2937;
+  color: #E5E7EB;
+  border-bottom-right-radius: 4px;
+}
+
+.bubble-role {
+  font-size: 9px;
+  font-weight: 900;
+  margin-bottom: 2px;
+  opacity: 0.7;
+}
+
+.call-header-mini {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: #EF4444;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+.btn-call-trigger {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-call-trigger.start {
+  background: #22C55E;
+  color: white;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+}
+
+.btn-call-trigger.end {
+  background: #EF4444;
+  color: white;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.btn-call-trigger:active {
+  transform: scale(0.9);
+}
+
+.ivr-prompt-card {
+  background: #1E293B;
+  border-radius: 20px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.ivr-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.option-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 12px;
+  color: white;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.option-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #3B82F6;
+}
+
+.ivr-input-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ivr-input {
+  flex: 1;
+  background: #0F172A;
+  border: 1px solid #334155;
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.btn-go {
+  background: #3B82F6;
+  color: white;
+  border: none;
+  width: 40px;
+  border-radius: 10px;
+}
+
+.sms-notification-bubble {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 16px;
+  margin-top: 16px;
+  animation: slideUp 0.3s ease-out;
+}
+
+.result-phone-card {
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.result-score {
+  font-size: 64px;
+  font-weight: 900;
+  margin: 12px 0;
+}
+
+.result-label {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.sync-orbit {
+  animation: orbit 3s linear infinite;
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.sms-track-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.sms-visual-body {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.score-meter-large {
+  width: 80px;
+  height: 80px;
+  border: 4px solid;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 900;
+}
+
+.empty-state-v2 {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.feature-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.f-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}

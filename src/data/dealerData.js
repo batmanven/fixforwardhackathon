@@ -1,5 +1,4 @@
-// Fuel dealer data across India's crisis clusters
-// Simulates IndianOil, BPCL, HPCL dealer networks
+import { supabase } from '../utils/supabaseClient';
 
 const omcCompanies = ['IndianOil', 'BPCL', 'HPCL'];
 
@@ -19,11 +18,6 @@ function generateDealer(id, baseLat, baseLng, city, state, pinPrefix) {
   else if (stockPct <= 30) status = 'critical';
   else if (stockPct <= 60) status = 'low';
 
-  const lpgCylinders = randomBetween(0, 200);
-  const naturalGasUnits = randomBetween(0, 500);
-  const lastRefillDate = `2026-03-${String(randomBetween(1, 11)).padStart(2, '0')}`;
-  const nextExpectedRefill = `2026-03-${String(randomBetween(12, 25)).padStart(2, '0')}`;
-
   return {
     id: `DLR-${String(id).padStart(4, '0')}`,
     name: `${company} ${city} Dealer ${id}`,
@@ -35,54 +29,56 @@ function generateDealer(id, baseLat, baseLng, city, state, pinPrefix) {
     pinCode: `${pinPrefix}${randomBetween(100, 999)}`,
     stockPct,
     status,
-    lpgCylinders,
-    naturalGasUnits,
-    pricePerCylinder: randomBetween(1800, 2800),
-    blackMarketPremium: status === 'empty' || status === 'critical' ? randomBetween(150, 300) : 0,
-    lastRefillDate,
-    nextExpectedRefill,
-    waitingDays: status === 'empty' ? randomBetween(15, 30) : status === 'critical' ? randomBetween(8, 15) : randomBetween(1, 5),
+    lpgCylinders: randomBetween(10, 200),
+    waitingDays: status === 'empty' ? 20 : 2,
     queueLength: randomBetween(0, 50),
-    phone: `+91 ${randomBetween(70000, 99999)} ${randomBetween(10000, 99999)}`,
-    isVerified: Math.random() > 0.2,
-    acceptsVoucher: Math.random() > 0.3,
+    phone: `+91 99999 00000`,
+    acceptsVoucher: true,
   };
 }
 
-let dealerId = 1;
-const dealerList = [];
+// Static fallback list
+export const dealerList = [
+  ...Array.from({ length: 12 }, (_, i) => generateDealer(i + 1, 22.8173, 70.8378, 'Morbi', 'Gujarat', '363')),
+  ...Array.from({ length: 10 }, (_, i) => generateDealer(i + 13, 19.2813, 73.0482, 'Bhiwandi', 'Maharashtra', '421')),
+];
 
-// Morbi area dealers
-for (let i = 0; i < 12; i++) dealerList.push(generateDealer(dealerId++, 22.8173, 70.8378, 'Morbi', 'Gujarat', '363'));
+export const calculateDealerStats = (list) => ({
+  total: list.length,
+  empty: list.filter(d => d.status === 'empty').length,
+  critical: list.filter(d => d.status === 'critical').length,
+  low: list.filter(d => d.status === 'low').length,
+  available: list.filter(d => d.status === 'available').length,
+  avgWaitDays: parseFloat((list.reduce((s, d) => s + d.waitingDays, 0) / list.length).toFixed(1)),
+  avgStockPct: parseFloat((list.reduce((s, d) => s + d.stockPct, 0) / list.length).toFixed(1)),
+  acceptingVouchers: list.filter(d => d.acceptsVoucher).length,
+});
 
-// Bhiwandi area dealers
-for (let i = 0; i < 10; i++) dealerList.push(generateDealer(dealerId++, 19.2813, 73.0482, 'Bhiwandi', 'Maharashtra', '421'));
+export const dealerStats = calculateDealerStats(dealerList);
 
-// Ludhiana area dealers
-for (let i = 0; i < 10; i++) dealerList.push(generateDealer(dealerId++, 30.9010, 75.8573, 'Ludhiana', 'Punjab', '141'));
+/**
+ * Fetch live Dealers from Supabase
+ */
+export async function getLiveDealers() {
+  try {
+    const { data, error } = await supabase
+      .from('fuel_dealers')
+      .select('*');
 
-// Surat area dealers
-for (let i = 0; i < 8; i++) dealerList.push(generateDealer(dealerId++, 21.1702, 72.8311, 'Surat', 'Gujarat', '395'));
+    if (error) throw error;
+    if (!data || data.length === 0) return dealerList;
 
-// Pune area dealers
-for (let i = 0; i < 8; i++) dealerList.push(generateDealer(dealerId++, 18.5204, 73.8567, 'Pune', 'Maharashtra', '411'));
+    return data.map(d => ({
+      ...d,
+      stockPct: d.stock_pct,
+      pinCode: d.pin_code,
+      acceptsVoucher: d.accepts_voucher,
+      waitingDays: d.status === 'empty' ? 15 : 2,
+    }));
+  } catch (err) {
+    console.error('Supabase fetch failed for dealers:', err);
+    return dealerList;
+  }
+}
 
-// Ahmedabad area dealers
-for (let i = 0; i < 8; i++) dealerList.push(generateDealer(dealerId++, 23.0225, 72.5714, 'Ahmedabad', 'Gujarat', '380'));
-
-// Delhi-NCR area dealers
-for (let i = 0; i < 12; i++) dealerList.push(generateDealer(dealerId++, 28.7041, 77.1025, 'Delhi', 'Delhi', '110'));
-
-export const dealerStats = {
-  total: dealerList.length,
-  empty: dealerList.filter(d => d.status === 'empty').length,
-  critical: dealerList.filter(d => d.status === 'critical').length,
-  low: dealerList.filter(d => d.status === 'low').length,
-  available: dealerList.filter(d => d.status === 'available').length,
-  avgWaitDays: parseFloat((dealerList.reduce((s, d) => s + d.waitingDays, 0) / dealerList.length).toFixed(1)),
-  avgStockPct: parseFloat((dealerList.reduce((s, d) => s + d.stockPct, 0) / dealerList.length).toFixed(1)),
-  acceptingVouchers: dealerList.filter(d => d.acceptsVoucher).length,
-};
-
-export { dealerList };
 export default dealerList;

@@ -1,7 +1,9 @@
+import { supabase } from '../utils/supabaseClient';
+
 // Realistic MSME data based on the crisis situation
 // 250+ units across Morbi (ceramics), Bhiwandi (textiles), Ludhiana (auto parts), Restaurants
 
-const industries = {
+export const industries = {
   ceramics: { name: 'Ceramics', fuelType: 'LPG', avgDailyUsage: 45, icon: '🏭' },
   textiles: { name: 'Textiles', fuelType: 'Natural Gas', avgDailyUsage: 30, icon: '🧵' },
   autoParts: { name: 'Auto Parts', fuelType: 'LPG', avgDailyUsage: 35, icon: '⚙️' },
@@ -10,7 +12,7 @@ const industries = {
   food: { name: 'Food Processing', fuelType: 'LPG', avgDailyUsage: 20, icon: '🥫' },
 };
 
-const clusters = {
+export const clusters = {
   morbi: {
     name: 'Morbi',
     state: 'Gujarat',
@@ -83,39 +85,6 @@ const clusters = {
   },
 };
 
-const firstNames = [
-  'Rajesh', 'Amit', 'Suresh', 'Mahesh', 'Dinesh', 'Ramesh', 'Vikram', 'Arun',
-  'Prakash', 'Sanjay', 'Jitendra', 'Bhavesh', 'Nilesh', 'Kiran', 'Gopal',
-  'Mohan', 'Ravi', 'Deepak', 'Mukesh', 'Naresh', 'Harish', 'Ashok', 'Vinod',
-  'Pramod', 'Kamlesh', 'Jagdish', 'Manoj', 'Paresh', 'Hitesh', 'Yogesh',
-  'Fatima', 'Rekha', 'Sunita', 'Meena', 'Geeta', 'Savita',
-];
-
-const lastNames = [
-  'Patel', 'Shah', 'Sharma', 'Kumar', 'Singh', 'Desai', 'Mehta', 'Joshi',
-  'Agarwal', 'Gupta', 'Verma', 'Chauhan', 'Thakkar', 'Modi', 'Parikh',
-  'Bhatt', 'Pandey', 'Yadav', 'Reddy', 'Nair', 'Iyer',
-];
-
-const ceramicProducts = ['Wall Tiles', 'Floor Tiles', 'Vitrified Tiles', 'Sanitary Ware', 'Roof Tiles'];
-const textileProducts = ['Cotton Fabric', 'Synthetic Fabric', 'Denim', 'Silk Blend', 'Power Loom Fabric'];
-const autoProducts = ['Bicycle Parts', 'Sewing Machine Parts', 'Engine Components', 'Fasteners', 'Hand Tools'];
-const restaurantTypes = ['Dhaba', 'Restaurant', 'Street Food Stall', 'Catering Service', 'Bakery'];
-const pharmaProducts = ['API Manufacturing', 'Tablet Formulation', 'Syrup Manufacturing', 'Bulk Drug'];
-const foodProducts = ['Spice Processing', 'Oil Milling', 'Flour Milling', 'Snack Manufacturing'];
-
-function getProducts(industry) {
-  switch (industry) {
-    case 'ceramics': return ceramicProducts;
-    case 'textiles': return textileProducts;
-    case 'autoParts': return autoProducts;
-    case 'restaurant': return restaurantTypes;
-    case 'pharma': return pharmaProducts;
-    case 'food': return foodProducts;
-    default: return ['General Manufacturing'];
-  }
-}
-
 function randomBetween(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -127,11 +96,7 @@ function randomFloat(min, max, decimals = 1) {
 function generateMSME(id, clusterKey, industryKey) {
   const cluster = clusters[clusterKey];
   const industry = industries[industryKey];
-  const products = getProducts(industryKey);
 
-  const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-  const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-  const product = products[Math.floor(Math.random() * products.length)];
 
   const dailyUsageKg = randomBetween(
     Math.floor(industry.avgDailyUsage * 0.5),
@@ -147,46 +112,17 @@ function generateMSME(id, clusterKey, industryKey) {
   const hasExportOrders = Math.random() > 0.6;
   const exportValueLakhs = hasExportOrders ? randomBetween(5, 500) : 0;
 
-  // Fuel Dependency Score: higher = more critical
-  // Based on: days of fuel remaining, employees, export orders, capacity
-  let fuelScore = 0;
-  if (daysOfFuel <= 1) fuelScore += 40;
-  else if (daysOfFuel <= 3) fuelScore += 30;
-  else if (daysOfFuel <= 5) fuelScore += 20;
-  else if (daysOfFuel <= 7) fuelScore += 10;
-  else fuelScore += 5;
-
-  if (employees > 200) fuelScore += 20;
-  else if (employees > 50) fuelScore += 15;
-  else fuelScore += 8;
-
-  if (hasExportOrders) fuelScore += 15;
-  if (capacityUtilization < 40) fuelScore += 15;
-  else if (capacityUtilization < 60) fuelScore += 10;
-
-  fuelScore = Math.min(100, Math.max(1, fuelScore + randomBetween(-5, 5)));
-
-  let riskLevel = 'green';
-  if (fuelScore >= 70) riskLevel = 'red';
-  else if (fuelScore >= 40) riskLevel = 'yellow';
-
-  // Add slight random offset to cluster coordinates
-  const lat = cluster.lat + randomFloat(-0.08, 0.08, 4);
-  const lng = cluster.lng + randomFloat(-0.08, 0.08, 4);
-
-  const registrationDate = new Date(2026, 2, randomBetween(1, 10));
-  const phone = `+91 ${randomBetween(70000, 99999)} ${randomBetween(10000, 99999)}`;
+  let fuelScore = daysOfFuel <= 3 ? 80 : 30;
+  let riskLevel = fuelScore >= 70 ? 'red' : 'green';
 
   return {
     id: `MERP-${String(id).padStart(5, '0')}`,
-    ownerName: `${firstName} ${lastName}`,
-    unitName: `${lastName} ${product}${industryKey === 'restaurant' ? '' : ' Works'}`,
-    phone,
+    ownerName: `Owner ${id}`,
+    unitName: `Unit ${id}`,
+    phone: `+91 99999 00000`,
     industry: industryKey,
     industryLabel: industry.name,
     industryIcon: industry.icon,
-    product,
-    fuelType: industry.fuelType,
     dailyUsageKg,
     currentStockKg,
     daysOfFuel,
@@ -200,65 +136,64 @@ function generateMSME(id, clusterKey, industryKey) {
     clusterName: cluster.name,
     state: cluster.state,
     pinCode: cluster.pinCode,
-    lat,
-    lng,
-    registrationDate: registrationDate.toISOString().split('T')[0],
-    lastUpdated: '2026-03-11',
-    language: clusterKey === 'morbi' || clusterKey === 'surat' || clusterKey === 'ahmedabad'
-      ? 'Gujarati'
-      : clusterKey === 'bhiwandi' || clusterKey === 'pune'
-        ? 'Marathi'
-        : clusterKey === 'ludhiana'
-          ? 'Punjabi'
-          : 'Hindi',
+    lat: cluster.lat + randomFloat(-0.05, 0.05, 4),
+    lng: cluster.lng + randomFloat(-0.05, 0.05, 4),
+    registrationDate: '2026-03-01',
   };
 }
 
-// Generate 280 MSMEs across clusters
-let msmeId = 1;
-const msmeList = [];
+// Generate static list as fallback
+export const msmeList = Array.from({ length: 50 }, (_, i) => generateMSME(i + 1, 'morbi', 'ceramics'));
 
-// Morbi - 60 ceramic units
-for (let i = 0; i < 55; i++) msmeList.push(generateMSME(msmeId++, 'morbi', 'ceramics'));
-for (let i = 0; i < 5; i++) msmeList.push(generateMSME(msmeId++, 'morbi', 'food'));
+export const calculateStats = (list) => ({
+  totalMSMEs: list.length,
+  redUnits: list.filter(m => m.riskLevel === 'red').length,
+  yellowUnits: list.filter(m => m.riskLevel === 'yellow').length,
+  greenUnits: list.filter(m => m.riskLevel === 'green').length,
+  totalEmployees: list.reduce((s, m) => s + m.employees, 0),
+  avgCapacity: parseFloat((list.reduce((s, m) => s + m.capacityUtilization, 0) / list.length).toFixed(1)),
+  exportAtRisk: list.filter(m => m.hasExportOrders && m.riskLevel === 'red').reduce((s, m) => s + m.exportValueLakhs, 0),
+  avgFuelDays: parseFloat((list.reduce((s, m) => s + m.daysOfFuel, 0) / list.length).toFixed(1)),
+  criticalUnits: list.filter(m => m.daysOfFuel <= 2).length,
+});
 
-// Bhiwandi - 50 textile units
-for (let i = 0; i < 45; i++) msmeList.push(generateMSME(msmeId++, 'bhiwandi', 'textiles'));
-for (let i = 0; i < 5; i++) msmeList.push(generateMSME(msmeId++, 'bhiwandi', 'restaurant'));
+export const stats = calculateStats(msmeList);
 
-// Ludhiana - 40 auto parts
-for (let i = 0; i < 35; i++) msmeList.push(generateMSME(msmeId++, 'ludhiana', 'autoParts'));
-for (let i = 0; i < 5; i++) msmeList.push(generateMSME(msmeId++, 'ludhiana', 'food'));
+/**
+ * Fetch live MSMEs from Supabase
+ */
+export async function getLiveMSMEs() {
+  try {
+    const { data, error } = await supabase
+      .from('msme_registrations')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-// Surat - 30 textiles
-for (let i = 0; i < 25; i++) msmeList.push(generateMSME(msmeId++, 'surat', 'textiles'));
-for (let i = 0; i < 5; i++) msmeList.push(generateMSME(msmeId++, 'surat', 'restaurant'));
+    if (error) throw error;
+    if (!data || data.length === 0) return msmeList;
 
-// Pune - 30 restaurants + pharma
-for (let i = 0; i < 20; i++) msmeList.push(generateMSME(msmeId++, 'pune', 'restaurant'));
-for (let i = 0; i < 10; i++) msmeList.push(generateMSME(msmeId++, 'pune', 'pharma'));
+    // Map DB fields to app fields
+    return data.map(m => ({
+      ...m,
+      id: m.id.substring(0, 8),
+      ownerName: m.owner_name,
+      unitName: m.unit_name,
+      dailyUsageKg: m.daily_usage,
+      currentStockKg: m.current_stock,
+      daysOfFuel: m.days_of_fuel,
+      industryLabel: industries[m.industry]?.name || 'General',
+      industryIcon: industries[m.industry]?.icon || '🏭',
+      clusterName: m.cluster,
+      riskLevel: m.risk_level,
+      fuelScore: m.fuel_score,
+      capacityUtilization: m.capacity_utilization || 40,
+      hasExportOrders: m.has_export_orders || false,
+      exportValueLakhs: m.export_value_lakhs || 0,
+    }));
+  } catch (err) {
+    console.error('Supabase fetch failed, using fallback metrics:', err);
+    return msmeList;
+  }
+}
 
-// Ahmedabad - 30 pharma + food
-for (let i = 0; i < 15; i++) msmeList.push(generateMSME(msmeId++, 'ahmedabad', 'pharma'));
-for (let i = 0; i < 15; i++) msmeList.push(generateMSME(msmeId++, 'ahmedabad', 'food'));
-
-// Delhi-NCR - 40 restaurants + food
-for (let i = 0; i < 30; i++) msmeList.push(generateMSME(msmeId++, 'delhiNCR', 'restaurant'));
-for (let i = 0; i < 10; i++) msmeList.push(generateMSME(msmeId++, 'delhiNCR', 'food'));
-
-// Summary statistics
-export const stats = {
-  totalMSMEs: msmeList.length,
-  redUnits: msmeList.filter(m => m.riskLevel === 'red').length,
-  yellowUnits: msmeList.filter(m => m.riskLevel === 'yellow').length,
-  greenUnits: msmeList.filter(m => m.riskLevel === 'green').length,
-  totalEmployees: msmeList.reduce((s, m) => s + m.employees, 0),
-  avgCapacity: parseFloat((msmeList.reduce((s, m) => s + m.capacityUtilization, 0) / msmeList.length).toFixed(1)),
-  exportAtRisk: msmeList.filter(m => m.hasExportOrders && m.riskLevel === 'red').reduce((s, m) => s + m.exportValueLakhs, 0),
-  avgFuelDays: parseFloat((msmeList.reduce((s, m) => s + m.daysOfFuel, 0) / msmeList.length).toFixed(1)),
-  noFuelBuffer: msmeList.filter(m => m.daysOfFuel <= 7).length,
-  criticalUnits: msmeList.filter(m => m.daysOfFuel <= 2).length,
-};
-
-export { msmeList, industries, clusters };
 export default msmeList;
