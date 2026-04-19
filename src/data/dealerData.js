@@ -17,6 +17,13 @@ function generateDealer(id, baseLat, baseLng, city, state, pinPrefix) {
     HPCL: ['Dharmjeet Petroleum', 'Siddhivinayak Fuel', 'Gajanan Petro', 'Industrial Area HP']
   };
 
+  const company = omcCompanies[id % 3];
+  const stockPct = randomBetween(0, 100);
+  let status = 'available';
+  if (stockPct <= 10) status = 'empty';
+  else if (stockPct <= 30) status = 'critical';
+  else if (stockPct <= 60) status = 'low';
+
   const name = dealerNames[company][id % 4];
 
   return {
