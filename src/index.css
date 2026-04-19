@@ -2320,3 +2320,61 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 12px;
   color: var(--text-secondary);
 }
+/* ===== NEW LIVE BADGE STYLES ===== */
+.live-badge-premium {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 107, 43, 0.08);
+  border: 1px solid rgba(255, 107, 43, 0.2);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: 0 0 15px rgba(255, 107, 43, 0.1);
+}
+
+.live-ping {
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+  position: relative;
+}
+
+.live-ping::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--primary);
+  border-radius: 50%;
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+.sms-track-card {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px dashed var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-top: 20px;
+}
+
+.sms-visual-body {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}

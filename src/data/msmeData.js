@@ -20,6 +20,7 @@ export const clusters = {
     primaryIndustry: 'ceramics',
     totalUnits: 850,
     totalWorkers: 800000,
+    area: 'Lakhdhirpur GIDC',
   },
   bhiwandi: {
     name: 'Bhiwandi',
@@ -114,10 +115,14 @@ function generateMSME(id, clusterKey, industryKey) {
   let riskLevel = fuelScore >= 70 ? 'red' : 'green';
 
   return {
-    id: `MERP-${String(id).padStart(5, '0')}`,
-    ownerName: `Owner ${id}`,
-    unitName: `Unit ${id}`,
-    phone: `+91 99999 00000`,
+    id: `MQ-${String(id).padStart(4, '0')}`,
+    ownerName: id % 2 === 0 ? `Rajesh Patel` : `Suresh Bhai`,
+    unitName: [
+      'Shiv Shakti Ceramics', 'Ambika Tiles', 'Blue Dragon Pottery', 
+      'Vayu Textiles', 'Golden Thread Weaving', 'Precision Auto Hub',
+      'Modern Pharma Ltd', 'Desi Treats Food Processing'
+    ][id % 8],
+    phone: `+91 98XXX XXX${String(id).padStart(2, '0')}`,
     industry: industryKey,
     industryLabel: industry.name,
     industryIcon: industry.icon,
@@ -134,14 +139,18 @@ function generateMSME(id, clusterKey, industryKey) {
     clusterName: cluster.name,
     state: cluster.state,
     pinCode: cluster.pinCode,
-    lat: cluster.lat + randomFloat(-0.05, 0.05, 4),
-    lng: cluster.lng + randomFloat(-0.05, 0.05, 4),
+    lat: cluster.lat + randomFloat(-0.02, 0.02, 4),
+    lng: cluster.lng + randomFloat(-0.02, 0.02, 4),
     registrationDate: '2026-03-01',
   };
 }
 
 // Generate static list as fallback
-export const msmeList = Array.from({ length: 50 }, (_, i) => generateMSME(i + 1, 'morbi', 'ceramics'));
+export const msmeList = [
+  ...Array.from({ length: 15 }, (_, i) => generateMSME(i + 1, 'morbi', 'ceramics')),
+  ...Array.from({ length: 10 }, (_, i) => generateMSME(i + 16, 'bhiwandi', 'textiles')),
+  ...Array.from({ length: 5 }, (_, i) => generateMSME(i + 26, 'ludhiana', 'autoParts')),
+];
 
 export const calculateStats = (list) => {
   if (!list || list.length === 0) {

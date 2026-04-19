@@ -116,8 +116,8 @@ export default function RegisterPage() {
           setIsSyncing(false);
           setShowResult(true);
 
-          setTimeout(() => setSmsSent(true), 1000);
-        }, 2500);
+          setTimeout(() => setSmsSent(true), 500);
+        }, 800);
       });
 
       vapi.start(vapiKeys.assistantId);
@@ -150,7 +150,7 @@ export default function RegisterPage() {
         employees: parseInt(newAnswers.employees) || 50,
       }));
       setShowResult(true);
-      setTimeout(() => setSmsSent(true), 1500);
+      setTimeout(() => setSmsSent(true), 800);
     }
   }
 
@@ -162,8 +162,8 @@ export default function RegisterPage() {
             <div className="pulse-dot" />
             <span style={{ fontSize: '10px', color: 'var(--primary)', fontWeight: 800, letterSpacing: '2px' }}>LIVE INTELLIGENCE</span>
           </div>
-          <h2>Voice AI Simulator</h2>
-          <p>India's first energy intelligence flow for MSMEs.</p>
+          <h2>Voice AI Agent Simulator</h2>
+          <p>India's first energy intelligence flow for priority industrial clusters.</p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button className={`btn ${useVapi ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setUseVapi(!useVapi)}>
