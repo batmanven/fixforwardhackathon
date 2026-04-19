@@ -12,6 +12,11 @@ import { formatNumber } from '../utils/formatters';
 
 const RISK_COLORS = { red: '#EF4444', yellow: '#F59E0B', green: '#22C55E' };
 
+export default function DashboardPage() {
+  const [msmeList, setMsmeList] = useState([]);
+  const [dealerList, setDealerList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const loadData = async () => {
       const [msmes, dealers] = await Promise.all([
