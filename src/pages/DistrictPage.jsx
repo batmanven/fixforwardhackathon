@@ -3,6 +3,7 @@ import { generateDistrictReports, generateMorningReport } from '../data/alertDat
 import { getLiveMSMEs } from '../data/msmeData';
 import { formatNumber } from '../utils/formatters';
 import { useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 
 export default function DistrictPage() {
   const [selectedDistrict, setSelectedDistrict] = useState(null);
